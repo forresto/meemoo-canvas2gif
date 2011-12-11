@@ -1,3 +1,8 @@
+To come... [Meemoo](http://meemoo.org) module version of this...
+
+
+
+
 Pure JavaScript HTML5 <canvas> to (Animated) GIF Conversion
 ===========================================================
 

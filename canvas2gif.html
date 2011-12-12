@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>canvas2gif</title>
+  <meta name="author" content="forresto">
+  <meta name="description" content="canvas image data to animated gif" />
+  
+  <script type="text/javascript" src="LZWEncoder.js"></script>
+  <script type="text/javascript" src="NeuQuant.js"></script>
+  <script type="text/javascript" src="GIFEncoder.js"></script>
+  
+  <script src="http://meemoo.org/meemoo/meemoo.js"></script>
+  
+  <style type="text/css">
+    html, body {
+      margin:0;
+      padding:0;
+    }
+  </style>
+</head>
+<body>
+  
+  <img id="gif" />
+  
+  <div>
+    <button onclick="finalize()">finalize gif</button> <span id="status"></span>
+  </div>
+
+  <div id="saved">
+  </div>
+    
+  <script type="text/javascript">
+  
+    var gif = document.getElementById("gif");
+    var status = document.getElementById("status");
+    var saved = document.getElementById("saved");
+    
+    var encoder = new GIFEncoder();
+    
+    var building = false;
+    var frames = 0;
+    
+    var finalize = function() {
+      if (frames < 1) { 
+        return false; 
+      }
+      
+      encoder.finish();
+      var dataurl = "data:image/gif;base64,"+window.btoa(encoder.stream().getData());
+      status.innerHTML = "done";
+      building = false;
+      frames = 0;
+      
+      var savedImg = new Image();
+      savedImg.src = dataurl;
+      savedImg.onclick = function(){
+        console.log(this);
+        Meemoo.send("gif", this.src);
+      };
+      saved.insertBefore(savedImg,saved.firstChild);
+      gif.src = "";
+      
+      Meemoo.send("gif", dataurl);
+    }
+    
+    Meemoo.addInputs({
+      image: {
+        action: function (imageData) {
+          if (!building) {
+            building = true;
+            encoder.start();
+            encoder.setSize(imageData.width, imageData.height);
+            // Loop
+            encoder.setRepeat(0);
+          }
+          encoder.addFrame(imageData.data, true);
+          frames++;
+          status.innerHTML = frames + " frames";
+          
+          var dataurl = "data:image/gif;base64,"+window.btoa(encoder.stream().getData());
+          gif.src = dataurl;
+          
+        },
+        port: true,
+        type: "image"
+      },
+      delay: {
+        action: function (i) {
+          encoder.setDelay(i);
+        },
+        port: true,
+        type: "int"
+      },
+      finalize: {
+        action: finalize,
+        port: true,
+        type: "bang"
+      }
+    }).addOutputs({
+      gif: {
+        port: true,
+        type: "data:image/gif"
+      }
+    });
+    
+  </script>
+  
+</body>
+</html>

@@ -6,6 +6,8 @@
   <meta name="author" content="forresto">
   <meta name="description" content="canvas image data to animated gif" />
   
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  
   <script type="text/javascript" src="LZWEncoder.js"></script>
   <script type="text/javascript" src="NeuQuant.js"></script>
   <script type="text/javascript" src="GIFEncoder.js"></script>
@@ -17,6 +19,9 @@
       margin:0;
       padding:0;
     }
+    .savedimg {
+      cursor:pointer;
+    }
   </style>
 </head>
 <body>
@@ -24,7 +29,7 @@
   <img id="gif" />
   
   <div>
-    <button onclick="finalize()">finalize gif</button> <span id="status"></span>
+    <button id="finalize" onclick="finalize()">finalize gif</button> <span id="status"></span>
   </div>
 
   <div id="saved">
@@ -32,14 +37,19 @@
     
   <script type="text/javascript">
   
-    var gif = document.getElementById("gif");
-    var status = document.getElementById("status");
-    var saved = document.getElementById("saved");
-    
     var encoder = new GIFEncoder();
-    
     var building = false;
     var frames = 0;
+    
+    $("#gif")
+      .hide()
+      .load(function(){
+        $("#gif").show();
+      });
+    
+    $("#finalize")
+      .attr('disabled','disabled')
+      .click(finalize);
     
     var finalize = function() {
       if (frames < 1) { 
@@ -48,20 +58,26 @@
       
       encoder.finish();
       var dataurl = "data:image/gif;base64,"+window.btoa(encoder.stream().getData());
-      status.innerHTML = "done";
-      building = false;
-      frames = 0;
+      $("#status").text("done");
       
-      var savedImg = new Image();
-      savedImg.src = dataurl;
-      savedImg.onclick = function(){
-        console.log(this);
-        Meemoo.send("gif", this.src);
-      };
-      saved.insertBefore(savedImg,saved.firstChild);
-      gif.src = "";
+      var savedImg = $('<img />')
+        .attr({
+          "src": dataurl,
+          "title": frames+"-frame animation, click to send",
+          "class": "savedimg"
+        })
+        .click(function(){
+          Meemoo.send("gif", this.src);
+        });
+      $("#saved").prepend(savedImg);
+      $("#gif").hide();
+      
+      $("#finalize").attr('disabled','disabled');
       
       Meemoo.send("gif", dataurl);
+      
+      building = false;
+      frames = 0;
     }
     
     Meemoo.addInputs({
@@ -76,10 +92,11 @@
           }
           encoder.addFrame(imageData.data, true);
           frames++;
-          status.innerHTML = frames + " frames";
+          $("#status").text(frames + " frames");
           
           var dataurl = "data:image/gif;base64,"+window.btoa(encoder.stream().getData());
-          gif.src = dataurl;
+          $("#gif").attr("src", dataurl);
+          $("#finalize").removeAttr('disabled');
           
         },
         port: true,

@@ -102,6 +102,16 @@
         port: true,
         type: "image"
       },
+      quality: {
+        action: function (i) {
+          // from 1 (best) to 20 (fastest)
+          encoder.setQuality( 20-Math.floor(i/100*19) );
+        },
+        port: true,
+        type: "int",
+        min: "0",
+        max: "100"
+      },
       delay: {
         action: function (i) {
           encoder.setDelay(i);
@@ -114,6 +124,7 @@
         port: true,
         type: "bang"
       }
+      
     }).addOutputs({
       gif: {
         port: true,

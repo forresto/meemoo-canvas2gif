@@ -40,6 +40,7 @@
     var encoder = new GIFEncoder();
     var building = false;
     var frames = 0;
+    var quality = 0;
     
     $("#gif")
       .hide()
@@ -87,6 +88,9 @@
             building = true;
             encoder.start();
             encoder.setSize(imageData.width, imageData.height);
+            if (quality===0) {
+              encoder.setQuality( 6 );
+            }
             // Loop
             encoder.setRepeat(0);
           }
@@ -105,7 +109,8 @@
       quality: {
         action: function (i) {
           // from 1 (best) to 20 (fastest)
-          encoder.setQuality( 20-Math.floor(i/100*19) );
+          quality = 20-Math.floor(i/100*19);
+          encoder.setQuality( quality );
         },
         port: true,
         type: "int",

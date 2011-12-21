@@ -42,6 +42,8 @@
     var frames = 0;
     var quality = 0;
     
+    var queue = [];
+    
     $("#gif")
       .hide()
       .load(function(){
@@ -81,6 +83,24 @@
       frames = 0;
     }
     
+    var encodeTimeout;
+    
+    function encodeQueue() {
+      encoder.addFrame(queue.shift(), true);
+      frames++;
+      $("#status").text(frames + " frames encoded, " + queue.length + " queued");
+      
+      if (queue.length > 0) {
+        // Encode the next frame
+        encodeTimeout = setTimeout(encodeQueue, 100);
+      } else {
+        // Show the partially encoded GIF
+        var dataurl = "data:image/gif;base64,"+window.btoa(encoder.stream().getData());
+        $("#gif").attr("src", dataurl);
+        $("#finalize").removeAttr('disabled');
+      }
+    }
+    
     Meemoo.addInputs({
       image: {
         action: function (imageData) {
@@ -94,14 +114,13 @@
             // Loop
             encoder.setRepeat(0);
           }
-          encoder.addFrame(imageData.data, true);
-          frames++;
-          $("#status").text(frames + " frames");
+          queue.push(imageData.data);
+          $("#finalize").attr('disabled','disabled');
+          $("#status").text(frames + " frames encoded, " + queue.length + " queued");
           
-          var dataurl = "data:image/gif;base64,"+window.btoa(encoder.stream().getData());
-          $("#gif").attr("src", dataurl);
-          $("#finalize").removeAttr('disabled');
-          
+          // Start encoding in .5 seconds, unless we get a new frame
+          clearTimeout(encodeTimeout);
+          encodeTimeout = setTimeout(encodeQueue, 500);
         },
         port: true,
         type: "image"

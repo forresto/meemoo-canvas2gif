@@ -92,7 +92,7 @@
       
       if (queue.length > 0) {
         // Encode the next frame
-        encodeTimeout = setTimeout(encodeQueue, 100);
+        encodeTimeout = setTimeout(encodeQueue, 500);
       } else {
         // Show the partially encoded GIF
         var dataurl = "data:image/gif;base64,"+window.btoa(encoder.stream().getData());

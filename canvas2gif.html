@@ -118,6 +118,9 @@
           $("#finalize").attr('disabled','disabled');
           $("#status").text(frames + " frames encoded, " + queue.length + " queued");
           
+          // Aurora fix?
+          $("#gif").attr("src", ""); 
+          
           // Start encoding in .5 seconds, unless we get a new frame
           clearTimeout(encodeTimeout);
           encodeTimeout = setTimeout(encodeQueue, 500);

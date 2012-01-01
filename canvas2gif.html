@@ -125,7 +125,6 @@
           clearTimeout(encodeTimeout);
           encodeTimeout = setTimeout(encodeQueue, 500);
         },
-        port: true,
         type: "image"
       },
       quality: {
@@ -134,7 +133,6 @@
           quality = 20-Math.floor(i/100*19);
           encoder.setQuality( quality );
         },
-        port: true,
         type: "int",
         min: "0",
         max: "100"
@@ -143,18 +141,15 @@
         action: function (i) {
           encoder.setDelay(i);
         },
-        port: true,
         type: "int"
       },
       finalize: {
         action: finalize,
-        port: true,
         type: "bang"
       }
       
     }).addOutputs({
       gif: {
-        port: true,
         type: "data:image/gif"
       }
     });

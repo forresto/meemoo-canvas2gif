@@ -34,6 +34,9 @@
 
   <div id="saved">
   </div>
+
+  <div id="matte" style="display:none;">
+  </div>
     
   <script type="text/javascript">
   
@@ -86,7 +89,21 @@
     var encodeTimeout;
     
     function encodeQueue() {
-      encoder.addFrame(queue.shift(), true);
+      imageData = queue.shift();
+      if (matteCanvasContext) {
+        // Fill matte
+        matteCanvasContext.fillStyle = transparentColor;
+        matteCanvasContext.fillRect(0, 0, matteCanvas.width, matteCanvas.height);
+        // Draw new frame
+        addCanvasContext.putImageData(imageData, 0, 0);
+        // Combine matte and new frame
+        matteCanvasContext.drawImage(addCanvas, 0, 0);
+        imageData = matteCanvasContext.getImageData(0, 0, matteCanvas.width, matteCanvas.height);
+      }
+      if (transparentColor) {
+        encoder.setDispose(0);
+      }
+      encoder.addFrame(imageData.data, true);
       frames++;
       $("#status").text(frames + " frames encoded, " + queue.length + " queued");
       
@@ -101,30 +118,67 @@
       }
     }
     
+    function addImage (imageData) {
+      if (!building) {
+        building = true;
+        encoder.start();
+        encoder.setSize(imageData.width, imageData.height);
+        if (quality===0) {
+          encoder.setQuality( 6 );
+        }
+        // Loop
+        encoder.setRepeat(0);
+        // Matte
+        if (transparentColor) {
+          encoder.setTransparent( parseInt("0x"+transparentColor.substring(1,transparentColor.length)) );
+          
+          matteCanvas = $("<canvas />");
+          matteCanvas = $("<canvas />")[0];
+          matteCanvas.width = imageData.width;
+          matteCanvas.height = imageData.height;
+          matteCanvasContext = matteCanvas.getContext('2d');
+          $("#matte").append(matteCanvas);
+          
+          addCanvas = $("<canvas />");
+          addCanvas = $("<canvas />")[0];
+          addCanvas.width = imageData.width;
+          addCanvas.height = imageData.height;
+          addCanvasContext = addCanvas.getContext('2d');
+          $("#matte").append(addCanvas);
+          
+        }
+      }
+      queue.push(imageData);
+      $("#finalize").attr('disabled','disabled');
+      $("#status").text(frames + " frames encoded, " + queue.length + " queued");
+      
+      // Aurora fix?
+      $("#gif").attr("src", ""); 
+      
+      // Start encoding in .5 seconds, unless we get a new frame
+      clearTimeout(encodeTimeout);
+      encodeTimeout = setTimeout(encodeQueue, 500);
+    }
+    
+    var transparentColor;
+    var matteCanvas;
+    var matteCanvasContext;
+    var addCanvas;
+    var addCanvasContext;
+    
+    function setTransparent (color) {
+      if (color === undefined) {
+        transparentColor = undefined;
+        matteCanvas = undefined;
+        matteCanvasContext = undefined;
+      } else {
+        transparentColor = color;
+      }
+    }
+    
     Meemoo.addInputs({
       image: {
-        action: function (imageData) {
-          if (!building) {
-            building = true;
-            encoder.start();
-            encoder.setSize(imageData.width, imageData.height);
-            if (quality===0) {
-              encoder.setQuality( 6 );
-            }
-            // Loop
-            encoder.setRepeat(0);
-          }
-          queue.push(imageData.data);
-          $("#finalize").attr('disabled','disabled');
-          $("#status").text(frames + " frames encoded, " + queue.length + " queued");
-          
-          // Aurora fix?
-          $("#gif").attr("src", ""); 
-          
-          // Start encoding in .5 seconds, unless we get a new frame
-          clearTimeout(encodeTimeout);
-          encodeTimeout = setTimeout(encodeQueue, 500);
-        },
+        action: addImage,
         type: "image"
       },
       quality: {
@@ -135,13 +189,18 @@
         },
         type: "int",
         min: "0",
-        max: "100"
+        max: "100",
+        description: "from 0 (fastest) to 100 (best)"
       },
       delay: {
         action: function (i) {
           encoder.setDelay(i);
         },
         type: "int"
+      },
+      transparent: {
+        action: setTransparent,
+        type: "color"
       },
       finalize: {
         action: finalize,

@@ -100,9 +100,6 @@
         matteCanvasContext.drawImage(addCanvas, 0, 0);
         imageData = matteCanvasContext.getImageData(0, 0, matteCanvas.width, matteCanvas.height);
       }
-      if (transparentColor) {
-        encoder.setDispose(0);
-      }
       encoder.addFrame(imageData.data, true);
       frames++;
       $("#status").text(frames + " frames encoded, " + queue.length + " queued");

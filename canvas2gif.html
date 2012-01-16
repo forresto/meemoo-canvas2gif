@@ -92,7 +92,7 @@
       imageData = queue.shift();
       if (matteCanvasContext) {
         // Fill matte
-        matteCanvasContext.fillStyle = transparentColor;
+        matteCanvasContext.fillStyle = matteColor;
         matteCanvasContext.fillRect(0, 0, matteCanvas.width, matteCanvas.height);
         // Draw new frame
         addCanvasContext.putImageData(imageData, 0, 0);
@@ -125,10 +125,12 @@
         }
         // Loop
         encoder.setRepeat(0);
+        // Transparent
+        if (transparentColor) {
+          encoder.setTransparent( parseInt("0x"+transparentColor.substring(1,transparentColor.length)) );
+        }
         // Matte
         if (matteColor) {
-/*           encoder.setTransparent( parseInt("0x"+transparentColor.substring(1,transparentColor.length)) ); */
-          
           matteCanvas = $("<canvas />");
           matteCanvas = $("<canvas />")[0];
           matteCanvas.width = imageData.width;

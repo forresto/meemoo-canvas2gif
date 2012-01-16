@@ -126,8 +126,8 @@
         // Loop
         encoder.setRepeat(0);
         // Matte
-        if (transparentColor) {
-          encoder.setTransparent( parseInt("0x"+transparentColor.substring(1,transparentColor.length)) );
+        if (matteColor) {
+/*           encoder.setTransparent( parseInt("0x"+transparentColor.substring(1,transparentColor.length)) ); */
           
           matteCanvas = $("<canvas />");
           matteCanvas = $("<canvas />")[0];
@@ -164,12 +164,24 @@
     var addCanvasContext;
     
     function setTransparent (color) {
-      if (color === undefined) {
+      if (color === undefined || color === "") {
         transparentColor = undefined;
         matteCanvas = undefined;
         matteCanvasContext = undefined;
       } else {
         transparentColor = color;
+      }
+    }
+
+    var matteColor;
+
+    function setMatte (color) {
+      if (color === undefined || color === "") {
+        matteColor = undefined;
+        matteCanvas = undefined;
+        matteCanvasContext = undefined;
+      } else {
+        matteColor = color;
       }
     }
     
@@ -195,8 +207,14 @@
         },
         type: "int"
       },
+/*
       transparent: {
         action: setTransparent,
+        type: "color"
+      },
+*/
+      matte: {
+        action: setMatte,
         type: "color"
       },
       finalize: {

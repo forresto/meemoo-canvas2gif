@@ -210,46 +210,52 @@
       }
     }
     
-    Meemoo.addInputs({
-      image: {
-        action: addImage,
-        type: "image"
-      },
-      quality: {
-        action: function (i) {
-          // from 1 (best) to 20 (fastest)
-          quality = 20-Math.floor(i/100*19);
-          encoder.setQuality( quality );
+    Meemoo
+      .setInfo({
+        title: "canvas2gif",
+        author: "forresto",
+        description: "canvas image data to animated gif"
+      })
+      .addInputs({
+        image: {
+          action: addImage,
+          type: "image"
         },
-        type: "int",
-        min: "0",
-        max: "100",
-        description: "from 0 (fastest) to 100 (best)"
-      },
-      delay: {
-        action: function (i) {
-          encoder.setDelay(i);
+        quality: {
+          action: function (i) {
+            // from 1 (best) to 20 (fastest)
+            quality = 20-Math.floor(i/100*19);
+            encoder.setQuality( quality );
+          },
+          type: "int",
+          min: "0",
+          max: "100",
+          description: "from 0 (fastest) to 100 (best)"
         },
-        type: "int"
-      },
-      // transparent: {
-      //   action: setTransparent,
-      //   type: "color"
-      // },
-      matte: {
-        action: setMatte,
-        type: "color"
-      },
-      finalize: {
-        action: finalize,
-        type: "bang"
-      }
-      
-    }).addOutputs({
-      gif: {
-        type: "data:image/gif"
-      }
-    });
+        delay: {
+          action: function (i) {
+            encoder.setDelay(i);
+          },
+          type: "int"
+        },
+        transparent: {
+          action: setTransparent,
+          type: "color"
+        },
+        matte: {
+          action: setMatte,
+          type: "color"
+        },
+        finalize: {
+          action: finalize,
+          type: "bang"
+        }
+      })
+      .addOutputs({
+        gif: {
+          type: "data:image/gif"
+        }
+      });
     
   </script>
   

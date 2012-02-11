@@ -365,7 +365,7 @@
 	      var dr/*int*/ = r - (colorTab[i++] & 0xff);
 	      var dg/*int*/ = g - (colorTab[i++] & 0xff);
 	      var db/*int*/ = b - (colorTab[i++] & 0xff);
-	      var d/*int*/ = dr * dr + dg * dg + db * db;
+	      var d/*int*/ = (dr * dr) + (dg * dg) + (db * db);
 	      var index/*int*/ = (i / 3) - 1;
 	      if (usedEntry[index] && (d < dmin)) {
 	        dmin = d;

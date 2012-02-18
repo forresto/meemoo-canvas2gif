@@ -6,7 +6,7 @@
   <meta name="author" content="forresto">
   <meta name="description" content="canvas image data to animated gif" />
   
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
   
   <script type="text/javascript" src="LZWEncoder.js"></script>
   <script type="text/javascript" src="NeuQuant.js"></script>
@@ -43,7 +43,8 @@
     var encoder = new GIFEncoder();
     var building = false;
     var frames = 0;
-    var quality = 0;
+    var quality = 75;
+    var delay = 200;
     
     var queue = [];
     
@@ -228,15 +229,19 @@
             encoder.setQuality( quality );
           },
           type: "int",
-          min: "0",
-          max: "100",
-          description: "from 0 (fastest) to 100 (best)"
+          min: 0,
+          max: 100,
+          description: "from 0 (fastest) to 100 (best)",
+          default: quality
         },
         delay: {
-          action: function (i) {
-            encoder.setDelay(i);
+          action: function (_d) {
+            delay = _d;
+            encoder.setDelay(_d);
           },
-          type: "int"
+          type: "int",
+          min: 0,
+          default: delay
         },
         transparent: {
           action: setTransparent,

@@ -358,7 +358,6 @@
 				// 	i+=3;
 				// 	var index = (i / 3) - 1;
 				// 	if (usedEntry[index]) {
-				// 	console.log("skip:", index);
 				// 		return index;
 				// 	}
 				// }

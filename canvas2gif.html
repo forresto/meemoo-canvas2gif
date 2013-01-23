@@ -92,11 +92,20 @@
     function encodeQueue() {
       imageData = queue.shift();
       if (matteCanvasContext) {
+        var i;
         // Fill matte
         matteCanvasContext.fillStyle = matteColor;
         matteCanvasContext.fillRect(0, 0, matteCanvas.width, matteCanvas.height);
         // Draw new frame
         addCanvasContext.putImageData(imageData, 0, 0);
+        // Index transparent pixels;
+        if (transparentColor) {
+          var transparentPixels = [];
+          for (i=0; i<(imageData.width*imageData.height); i++){
+            // check if alpha is 0
+            transparentPixels[i] = (imageData.data[i*4+3]===0) ? true : false;
+          }
+        }
         // Combine matte and new frame
         matteCanvasContext.drawImage(addCanvas, 0, 0);
         imageData = matteCanvasContext.getImageData(0, 0, matteCanvas.width, matteCanvas.height);
@@ -104,15 +113,12 @@
         // If transparent color and matte are different, 
         // chage all exact matte pixels to transparent color 
         // (for example: matte = white, transparent = lime green)
-        if (transparentColor && transparentColor != matteColor) {
+        if (transparentColor) {
           var tr = (transparentColorNumber & 0xFF0000) >> 16;
           var tg = (transparentColorNumber & 0x00FF00) >> 8;
           var tb = (transparentColorNumber & 0x0000FF);
-          var mr = (matteColorNumber & 0xFF0000) >> 16;
-          var mg = (matteColorNumber & 0x00FF00) >> 8;
-          var mb = (matteColorNumber & 0x0000FF);
-          for (var i=0; i<imageData.data.length; i+=4) {
-            if(imageData.data[i] === mr && imageData.data[i+1] === mg && imageData.data[i+2] === mb) {
+          for (i=0; i<imageData.data.length; i+=4) {
+            if(transparentPixels[i/4]) {
               imageData.data[i] = tr;
               imageData.data[i+1] = tg;
               imageData.data[i+2] = tb;
@@ -243,10 +249,10 @@
           min: 0,
           default: delay
         },
-        // transparent: {
-        //   action: setTransparent,
-        //   type: "color"
-        // },
+        transparent: {
+          action: setTransparent,
+          type: "color"
+        },
         matte: {
           action: setMatte,
           type: "color",

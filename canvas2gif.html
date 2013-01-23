@@ -228,18 +228,18 @@
           action: addImage,
           type: "image"
         },
-        quality: {
-          action: function (i) {
-            // from 1 (best) to 20 (fastest)
-            quality = 20-Math.floor(i/100*19);
-            encoder.setQuality( quality );
-          },
-          type: "int",
-          min: 0,
-          max: 100,
-          description: "from 0 (fastest) to 100 (best)",
-          default: quality
-        },
+        // quality: {
+        //   action: function (i) {
+        //     // from 1 (best) to 20 (fastest)
+        //     quality = 20-Math.floor(i/100*19);
+        //     encoder.setQuality( quality );
+        //   },
+        //   type: "int",
+        //   min: 0,
+        //   max: 100,
+        //   description: "from 0 (fastest) to 100 (best)",
+        //   default: quality
+        // },
         delay: {
           action: function (_d) {
             delay = _d;
@@ -250,10 +250,12 @@
           default: delay
         },
         transparent: {
+          description: "a color that is not in your image, like green #00FF00",
           action: setTransparent,
           type: "color"
         },
         matte: {
+          description: "for pixels that are not 100% transparent",
           action: setMatte,
           type: "color",
           default: "#FFFFFF"
